@@ -246,7 +246,7 @@ get_proxy() {
 
 set_proxy() {
   ${sudoCmd} /bin/cp /etc/tls-shunt-proxy/config.yaml /etc/tls-shunt-proxy/config.yaml.bak 2>/dev/null
-  wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/config/tls-shunt-proxy.yaml -O /tmp/config_new.yaml
+  wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/config/tls-shunt-proxy.yaml -O /tmp/config_new.yaml
 
   if [[ $(read_json /usr/local/etc/v2script/config.json '.v2ray.installed') == "true" ]]; then
     sed -i "s/FAKEV2DOMAIN/$(read_json /usr/local/etc/v2script/config.json '.v2ray.tlsHeader')/g" /tmp/config_new.yaml
@@ -280,7 +280,7 @@ get_caddy() {
   if [ ! -f "/usr/local/bin/caddy" ]; then
     #${sudoCmd} ${systemPackage} install libcap2-bin -y -qq
 
-    curl -sL https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/tools/getcaddy.sh | ${sudoCmd} bash -s personal
+    curl -sL https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/tools/getcaddy.sh | ${sudoCmd} bash -s personal
     # Give the caddy binary the ability to bind to privileged ports (e.g. 80, 443) as a non-root user
     #${sudoCmd} setcap 'cap_net_bind_service=+ep' /usr/local/bin/caddy
 
@@ -290,7 +290,7 @@ get_caddy() {
     ${sudoCmd} mkdir -p /usr/local/etc/ssl/caddy && ${sudoCmd} chown -R root:www-data /usr/local/etc/ssl/caddy
     ${sudoCmd} chmod 0770 /usr/local/etc/ssl/caddy
 
-    wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/config/caddy.service -O /tmp/caddy.service
+    wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/config/caddy.service -O /tmp/caddy.service
     ${sudoCmd} mv /tmp/caddy.service /etc/systemd/system/caddy.service
     ${sudoCmd} chown root:root /etc/systemd/system/caddy.service
     ${sudoCmd} chmod 644 /etc/systemd/system/caddy.service
@@ -332,18 +332,18 @@ EOF
 build_web() {
   if [ ! -f "/var/www/html/index.html" ]; then
     # choose and copy a random  template for dummy web pages
-    local template="$(curl -s https://raw.githubusercontent.com/phlinhng/web-templates/master/list.txt | shuf -n  1)"
-    wget -q https://raw.githubusercontent.com/phlinhng/web-templates/master/${template} -O /tmp/template.zip
+    local template="$(curl -s https://raw.githubusercontent.com/spark135246/web-templates/master/list.txt | shuf -n  1)"
+    wget -q https://raw.githubusercontent.com/spark135246/web-templates/master/${template} -O /tmp/template.zip
     ${sudoCmd} mkdir -p /var/www/html
     ${sudoCmd} unzip -q /tmp/template.zip -d /var/www/html
-    ${sudoCmd} wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/custom/robots.txt -O /var/www/html/robots.txt
+    ${sudoCmd} wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/custom/robots.txt -O /var/www/html/robots.txt
   else
     echo "Dummy website existed. Skip building."
   fi
 }
 
 checkIP() {
-  local realIP="$(curl -s `curl -s https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/master/custom/ip_api`)"
+  local realIP="$(curl -s `curl -s https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/master/custom/ip_api`)"
   local resolvedIP="$(ping $1 -c 1 | head -n 1 | grep  -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)"
 
   if [[ "${realIP}" == "${resolvedIP}" ]]; then
@@ -520,11 +520,11 @@ install_v2ray() {
   # install v2ray-core
   build_v2ray
 
-  # install tls-shunt-proxy
+  # 安装 tls-shunt-proxy
   get_proxy
 
   # install caddy
-  ${sudoCmd} docker rm $(${sudoCmd} docker stop $(${sudoCmd} docker ps -q --filter ancestor=abiosoft/caddy) 2>/dev/null) 2>/dev/null
+  #${sudoCmd} docker rm $(${sudoCmd} docker stop $(${sudoCmd} docker ps -q --filter ancestor=abiosoft/caddy) 2>/dev/null) 2>/dev/null
   #get_caddy
 
   # prevent some bug
@@ -532,10 +532,10 @@ install_v2ray() {
   ${sudoCmd} rm -f /usr/local/etc/Caddyfile # path for old version v2script
   ${sudoCmd} rm -rf /tmp/v2ray-ds # prevent v2ray booting issues after reinstalling
 
-  # create config files
+  # 创建v2ray的配置文件
   if [[ $(read_json /usr/local/etc/v2ray/config.json '.inbounds[0].streamSettings.network') != "domainsocket" ]]; then
     colorEcho ${BLUE} "Setting v2Ray"
-    wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/config/v2ray.json -O /tmp/v2ray.json
+    wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/config/v2ray.json -O /tmp/v2ray.json
     sed -i "s/FAKEPORT/$(($RANDOM + 10000))/g" /tmp/v2ray.json
     sed -i "s/FAKEUUID/$(cat '/proc/sys/kernel/random/uuid')/g" /tmp/v2ray.json
     ${sudoCmd} /bin/cp -f /tmp/v2ray.json /usr/local/etc/v2ray/config.json
@@ -544,8 +544,9 @@ install_v2ray() {
   colorEcho ${BLUE} "Setting tls-shunt-proxy"
   set_proxy
 
+  # 不设置caddy
   colorEcho ${BLUE} "Setting caddy"
-  set_caddy
+  # set_caddy
 
   colorEcho ${BLUE} "Building dummy web site"
   build_web
@@ -559,8 +560,8 @@ install_v2ray() {
   ${sudoCmd} systemctl restart v2ray 2>/dev/null ## restart v2ray to enable new config
   ${sudoCmd} systemctl enable tls-shunt-proxy
   ${sudoCmd} systemctl restart tls-shunt-proxy ## restart tls-shunt-proxy to enable new config
-  ${sudoCmd} systemctl enable caddy
-  ${sudoCmd} systemctl restart caddy
+  # ${sudoCmd} systemctl enable caddy
+  # ${sudoCmd} systemctl restart caddy
   ${sudoCmd} systemctl daemon-reload
   ${sudoCmd} systemctl reset-failed
 
@@ -670,7 +671,7 @@ install_trojan() {
   # create config files
   if [ ! -f "/etc/trojan-go/config.json" ]; then
     colorEcho ${BLUE} "Setting trojan-go"
-    wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/config/trojan-go_plain.json -O /tmp/trojan-go.json
+    wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/config/trojan-go_plain.json -O /tmp/trojan-go.json
     sed -i "s/FAKETROJANPWD/$(cat '/proc/sys/kernel/random/uuid' | sed -e 's/-//g' | tr '[:upper:]' '[:lower:]' | head -c 12)/g" /tmp/trojan-go.json
     ${sudoCmd} /bin/cp -f /tmp/trojan-go.json /etc/trojan-go/config.json
   fi
@@ -712,7 +713,7 @@ install_trojan() {
 
 rm_v2script() {
   ${sudoCmd} ${systemPackage} install curl -y -qq
-  curl -sL https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/tools/rm_v2script.sh | bash
+  curl -sL https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/tools/rm_v2script.sh | bash
   exit 0
 }
 
@@ -760,7 +761,7 @@ install_mtproto() {
     get_mtg
 
     # generate random header from txt files
-    local FAKE_TLS_HEADER="$(curl -s https://raw.githubusercontent.com/phlinhng/my-scripts/master/text/mainland_cdn.txt | shuf -n 1)"
+    local FAKE_TLS_HEADER="$(curl -s https://raw.githubusercontent.com/spark135246/my-scripts/master/text/mainland_cdn.txt | shuf -n 1)"
     local secret="$(${sudoCmd} mtg generate-secret tls -c ${FAKE_TLS_HEADER})"
 
     # writing configurations & setting tls-shunt-proxy
@@ -785,7 +786,7 @@ install_mtproto() {
 
 vps_tools() {
   ${sudoCmd} ${systemPackage} install wget -y -qq
-  wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/tools/vps_tools.sh -O /tmp/vps_tools.sh && chmod +x /tmp/vps_tools.sh && ${sudoCmd} /tmp/vps_tools.sh
+  wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/tools/vps_tools.sh -O /tmp/vps_tools.sh && chmod +x /tmp/vps_tools.sh && ${sudoCmd} /tmp/vps_tools.sh
   exit 0
 }
 

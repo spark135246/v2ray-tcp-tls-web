@@ -19,7 +19,7 @@
         }
       },
       "sniffing": {
-        "enabled": true,
+        "enabled": false,
         "destOverride": [ "http", "tls" ]
       }
     }
@@ -43,13 +43,6 @@
         "type": "field",
         "ip": [
           "geoip:private"
-        ],
-        "outboundTag": "blocked"
-      },
-      {
-        "type": "field",
-        "protocol": [
-          "bittorrent"
         ],
         "outboundTag": "blocked"
       }

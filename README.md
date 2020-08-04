@@ -3,7 +3,7 @@ automated script for V2Ray (TCP+TLS+Web), V2Ray (WSS+CDN), and Trojan-go
 
 ## Usage
 ```sh
-bash <(curl -sL https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/master/install.sh) && v2script
+bash <(curl -sL https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/master/install.sh) && v2script
 ```
 The above command will download the script, save it to `/usr/local/bin/v2script`, make it excutable and start it. To run the script again once installed, just use the following command:
 ```
@@ -11,7 +11,7 @@ v2script
 ```
 
 ## Screenshot
-<img src="https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/master/image/v2script_menu.jpeg" alt="alt text" width="640">
+<img src="https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/master/image/v2script_menu.jpeg" alt="alt text" width="640">
 
 ## TCP+TLS vs WS+TLS
 1. TCP+TLS has faster connection speed than WS+TLS benifit from that TCP is naturally faster than websocket

@@ -23,7 +23,7 @@ if [[ $(read_json /usr/local/etc/v2script/config.json '.trojan.installed') == "t
   ${sudoCmd} cp /etc/trojan-go/config.json /etc/trojan-go/config.json.bak
 
   currentPassword="$(read_json "/etc/trojan-go/config.json.bak" ".password[0]")"
-  wget -q https://raw.githubusercontent.com/phlinhng/v2ray-tcp-tls-web/${branch}/config/trojan-go_plain.json -O /tmp/trojan-go.json
+  wget -q https://raw.githubusercontent.com/spark135246/v2ray-tcp-tls-web/${branch}/config/trojan-go_plain.json -O /tmp/trojan-go.json
   sed -i "s/FAKETROJANPWD/"${currentPassword}"/g" /tmp/trojan-go.json
   ${sudoCmd} /bin/cp -f /tmp/trojan-go.json /etc/trojan-go/config.json
 
