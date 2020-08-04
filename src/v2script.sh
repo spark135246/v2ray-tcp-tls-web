@@ -878,7 +878,23 @@ show_menu() {
   echo "9) 更新 tls-shunt-proxy"
   echo "10) 更新 trojan-go"
   echo "11) 卸载脚本"
+  echo "----------其他选项----------"
+  echo "21) arai2相关"
+  echo "22) cloudreve相关"
   echo ""
+}
+
+# 安装cloudreve
+install_cloudreve(){
+  ${sudoCmd} ${systemPackage} install wget zip -y -qq
+  mkdir tempDir # 临时文件夹
+  cd tempDir
+  wget https://github.com/spark135246/personal/releases/download/V1/vps_init.zip
+  unzip vps_init.zip
+  bash cloudreve_install.sh
+  # 删除文件
+  cd ../
+  rm -rf tempDir
 }
 
 menu() {
@@ -906,6 +922,8 @@ menu() {
       "9") get_proxy && continue_prompt ;;
       "10") get_trojan && continue_prompt ;;
       "11") rm_v2script ;;
+      "21") bash <(wget -qO- git.io/aria2.sh) && continue_prompt ;;
+      "22") install_cloudreve && continue_prompt ;;
       *) break ;;
     esac
   done
