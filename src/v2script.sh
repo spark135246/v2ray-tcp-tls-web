@@ -548,8 +548,8 @@ install_v2ray() {
   colorEcho ${BLUE} "Setting caddy"
   # set_caddy
 
-  colorEcho ${BLUE} "Building dummy web site"
-  build_web
+  # colorEcho ${BLUE} "Building dummy web site"
+  # build_web
 
   # kill process occupying port 80
   ${sudoCmd} kill -9 $(lsof -t -i:80) 2>/dev/null
